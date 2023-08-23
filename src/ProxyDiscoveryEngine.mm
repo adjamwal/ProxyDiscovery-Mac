@@ -129,7 +129,7 @@ std::list<ProxyRecord> ProxyDiscoveryEngine::getProxiesInternal(const std::strin
     
     if (proxySettings == nullptr)
     {
-        //PM_LOG_WARNING("The SCDynamicStoreCopyProxies call returned zero dictionary as a proxy settings.");
+        PROXY_LOG_WARNING("The SCDynamicStoreCopyProxies call returned zero dictionary as a proxy settings.");
         return proxyList;
     }
     
@@ -139,7 +139,7 @@ std::list<ProxyRecord> ProxyDiscoveryEngine::getProxiesInternal(const std::strin
     NSMutableArray* proxies = [[NSMutableArray alloc] init];
     if (!pacUrlStr.empty())
     {
-        //PM_LOG_DEBUG("Pac url is provided for the proxy discovery: %s", pacUrlStr.c_str());
+        PROXY_LOG_DEBUG("Pac url is provided for the proxy discovery: %s", pacUrlStr.c_str());
         NSString* nsPacUrlStr = [NSString stringWithUTF8String:pacUrlStr.c_str()];
         NSURL* pacUrl = [NSURL URLWithString: nsPacUrlStr];
         expandPACProxy(testUrl, pacUrl, proxies);
@@ -169,7 +169,7 @@ std::list<ProxyRecord> ProxyDiscoveryEngine::getProxiesInternal(const std::strin
             }
             else
             {
-                //PM_LOG_DEBUG("Unable to determine proxy URL: both kCFProxyHostNameKey and kCFProxyHostNameKey are empty in the dictionary.");
+                PROXY_LOG_DEBUG("Unable to determine proxy URL: both kCFProxyHostNameKey and kCFProxyHostNameKey are empty in the dictionary.");
                 continue;
             }
         }
