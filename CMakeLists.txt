@@ -34,6 +34,12 @@ endif()
 # remove ZERO_CHECK target from xcode
 set(CMAKE_SUPPRESS_REGENERATION true)
 
+# gtest
+message( "Using test gtest_LIBRARY=${gtest_LIBRARY} gtest_INCLUDE_DIRS=${gtest_INCLUDE_DIRS}" )
+if(NOT DEFINED gtest_LIBRARY OR NOT DEFINED gtest_INCLUDE_DIRS)
+    message( FATAL_ERROR "Missing gtest" )
+endif()
+
 list(APPEND PROXY_DISCOVERY_SOURCES
     include/IProxyDiscoveryEngine.h
     include/IProxyLogger.h
