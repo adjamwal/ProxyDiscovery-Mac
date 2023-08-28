@@ -34,6 +34,12 @@ endif()
 # remove ZERO_CHECK target from xcode
 set(CMAKE_SUPPRESS_REGENERATION true)
 
+# gtest
+message( "Using test gtest_LIBRARY=${gtest_LIBRARY} gtest_INCLUDE_DIRS=${gtest_INCLUDE_DIRS}" )
+if(NOT DEFINED gtest_LIBRARY OR NOT DEFINED gtest_INCLUDE_DIRS)
+    message( FATAL_ERROR "Missing gtest" )
+endif()
+
 list(APPEND PROXY_DISCOVERY_SOURCES
     include/IProxyDiscoveryEngine.h
     include/IProxyLogger.h
@@ -61,9 +67,8 @@ set_property(TARGET ProxyDiscovery APPEND_STRING PROPERTY
               COMPILE_FLAGS "-fobjc-arc")
 
 target_include_directories(ProxyDiscovery
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${cm-client_SOURCE_DIR}
 )
@@ -73,3 +78,13 @@ target_link_libraries(ProxyDiscovery
         "-framework Foundation"
         "-framework SystemConfiguration"
 )
+
+# install rules
+install(TARGETS ProxyDiscovery DESTINATION lib)
+install(FILES 
+    "${CMAKE_SOURCE_DIR}/include/IProxyDiscoveryEngine.h"
+    "${CMAKE_SOURCE_DIR}/include/IProxyLogger.h"
+    "${CMAKE_SOURCE_DIR}/include/ProxyDef.h"
+    "${CMAKE_SOURCE_DIR}/include/ProxyRecord.h"
+   
+    DESTINATION include/ProxyDiscovery)
