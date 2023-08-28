@@ -61,9 +61,8 @@ set_property(TARGET ProxyDiscovery APPEND_STRING PROPERTY
               COMPILE_FLAGS "-fobjc-arc")
 
 target_include_directories(ProxyDiscovery
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${cm-client_SOURCE_DIR}
 )
@@ -73,3 +72,13 @@ target_link_libraries(ProxyDiscovery
         "-framework Foundation"
         "-framework SystemConfiguration"
 )
+
+# install rules
+install(TARGETS ProxyDiscovery DESTINATION lib)
+install(FILES 
+    "${CMAKE_SOURCE_DIR}/include/IProxyDiscoveryEngine.h"
+    "${CMAKE_SOURCE_DIR}/include/IProxyLogger.h"
+    "${CMAKE_SOURCE_DIR}/include/ProxyDef.h"
+    "${CMAKE_SOURCE_DIR}/include/IProxyRecord.h"
+   
+    DESTINATION include/ProxyDiscovery)
