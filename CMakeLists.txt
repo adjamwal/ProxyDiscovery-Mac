@@ -79,6 +79,6 @@ install(FILES
     "${CMAKE_SOURCE_DIR}/include/IProxyDiscoveryEngine.h"
     "${CMAKE_SOURCE_DIR}/include/IProxyLogger.h"
     "${CMAKE_SOURCE_DIR}/include/ProxyDef.h"
-    "${CMAKE_SOURCE_DIR}/include/IProxyRecord.h"
+    "${CMAKE_SOURCE_DIR}/include/ProxyRecord.h"
    
     DESTINATION include/ProxyDiscovery)
