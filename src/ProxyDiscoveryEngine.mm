@@ -49,7 +49,7 @@ void expandPACProxy(proxy::ISystemConfigurationAPI* pConfigurationAPI, NSURL* te
 {
     CFTypeRef result = nullptr;
     CFStreamClientContext context = {0, &result, nullptr, nullptr, nullptr};
-    CFRunLoopSourceRef rls = pConfigurationAPI->executeProxyAutoConfigurationURL(scriptURL, testUrl, resultCallback, &context);
+    CFRunLoopSourceRef rls = pConfigurationAPI->executeProxyAutoConfigurationURL(testUrl, scriptURL, resultCallback, &context);
     
     auto guard = util::scoped_guard([&rls]() {
         CFQRelease(rls);
