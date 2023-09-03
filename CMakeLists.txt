@@ -47,11 +47,15 @@ list(APPEND PROXY_DISCOVERY_SOURCES
     include/ProxyRecord.h
     src/ProxyDiscoveryEngine.h
     src/ProxyDiscoveryEngine.mm
+    src/ProxyDiscoveryEngineFactory.mm
     src/ScopedGuard.hpp
     src/ProxyLogger.cpp
     src/ProxyLoggerDef.hpp
     src/StringUtil.hpp
     src/StringUtil.mm
+    src/ISystemConfigurationAPI.h
+    src/SystemConfigurationAPI.h
+    src/SystemConfigurationAPI.mm
 )
 
 add_library(ProxyDiscovery STATIC
@@ -88,3 +92,7 @@ install(FILES
     "${CMAKE_SOURCE_DIR}/include/ProxyRecord.h"
    
     DESTINATION include/ProxyDiscovery)
+
+##
+## test executable
+add_subdirectory(test)
