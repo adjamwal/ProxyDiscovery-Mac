@@ -1,5 +1,6 @@
 #pragma once
 #include "IProxyDiscoveryEngine.h"
+#include "ISystemConfigurationAPI.h"
 
 #include <deque>
 #include <memory>
@@ -13,7 +14,7 @@ namespace proxy
 class ProxyDiscoveryEngine: public IProxyDiscoveryEngine {
 public:
     ~ProxyDiscoveryEngine();
-    ProxyDiscoveryEngine() = default;
+    explicit ProxyDiscoveryEngine(std::shared_ptr<ISystemConfigurationAPI> pConfigurationAPI);
     ProxyDiscoveryEngine(const ProxyDiscoveryEngine&) = delete;
     ProxyDiscoveryEngine(ProxyDiscoveryEngine&&) = delete;
     ProxyDiscoveryEngine& operator = (const ProxyDiscoveryEngine&) = delete;
@@ -30,6 +31,7 @@ private:
     std::deque<IProxyObserver*> m_observers;
     std::shared_ptr<std::thread> m_thread;
     std::shared_ptr<std::thread> m_threadSync;
+    std::shared_ptr<ISystemConfigurationAPI> m_pConfigurationAPI;
 };
 
 } //proxy namespace

@@ -8,6 +8,7 @@
 #include "ScopedGuard.hpp"
 #include "ProxyLoggerDef.hpp"
 #include "StringUtil.hpp"
+#include "SystemConfigurationAPI.h"
 
 #include <limits>
 
@@ -20,18 +21,16 @@ namespace
 {
 
 const std::string kPrivateRunLoopMode = "com.cisco.unified_connector.proxy_discovery";
+const CFTimeInterval kVeryLongTimeInterval = 1.0e10;
 
-void resultCallback(void * client, CFArrayRef proxies, CFErrorRef error)
+void resultCallback(void* client, CFArrayRef proxies, CFErrorRef error)
 {
-    CFTypeRef *     resultPtr;
+    assert( (proxies != nullptr) == (error == nullptr) );
+    CFTypeRef* resultPtr = (CFTypeRef*)client;
+    assert(resultPtr != nullptr);
+    assert(*resultPtr == nullptr);
     
-    assert( (proxies != NULL) == (error == NULL) );
-    
-    resultPtr = (CFTypeRef *) client;
-    assert( resultPtr != NULL);
-    assert(*resultPtr == NULL);
-    
-    if (error != NULL) {
+    if (error != nullptr) {
         *resultPtr = CFRetain(error);
     } else {
         *resultPtr = CFRetain(proxies);
@@ -46,11 +45,11 @@ void CFQRelease(CFTypeRef cf)
     }
 }
 
-void expandPACProxy(NSURL* testUrl, NSURL* scriptURL, NSMutableArray* retProxies)
+void expandPACProxy(proxy::ISystemConfigurationAPI* pConfigurationAPI, NSURL* testUrl, NSURL* scriptURL, NSMutableArray* retProxies)
 {
     CFTypeRef result = nullptr;
     CFStreamClientContext context = {0, &result, nullptr, nullptr, nullptr};
-    CFRunLoopSourceRef rls = CFNetworkExecuteProxyAutoConfigurationURL((__bridge CFURLRef)scriptURL, (__bridge CFURLRef)testUrl, resultCallback, &context);
+    CFRunLoopSourceRef rls = pConfigurationAPI->executeProxyAutoConfigurationURL(testUrl, scriptURL, resultCallback, &context);
     
     auto guard = util::scoped_guard([&rls]() {
         CFQRelease(rls);
@@ -65,7 +64,9 @@ void expandPACProxy(NSURL* testUrl, NSURL* scriptURL, NSMutableArray* retProxies
     
     NSString* nsPrivateRunLoopMode = [NSString stringWithUTF8String:kPrivateRunLoopMode.c_str()];
     CFRunLoopAddSource(CFRunLoopGetCurrent(), rls, (__bridge CFStringRef)nsPrivateRunLoopMode);
-    CFRunLoopRunInMode((__bridge CFStringRef)nsPrivateRunLoopMode, 1.0e10, false);
+    //Runloop should be stopped in resultCallback.
+    //Suppose that resultCallback is always called by the SystemConfigurationAPI::executeProxyAutoConfigurationURL.
+    CFRunLoopRunInMode((__bridge CFStringRef)nsPrivateRunLoopMode, kVeryLongTimeInterval, false);
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), rls, (__bridge CFStringRef)nsPrivateRunLoopMode);
     
     if (result == nullptr)
@@ -96,7 +97,7 @@ void expandPACProxy(NSURL* testUrl, NSURL* scriptURL, NSMutableArray* retProxies
     }
 }
 
-NSArray* expandPACProxies(NSURL* testUrl, NSArray* inputProxies)
+NSArray* expandPACProxies(proxy::ISystemConfigurationAPI* pConfigurationAPI, NSURL* testUrl, NSArray* inputProxies)
 {
     NSMutableArray* retProxies = [[NSMutableArray alloc] init];
     for (NSDictionary* dictionary in inputProxies) {
@@ -106,7 +107,7 @@ NSArray* expandPACProxies(NSURL* testUrl, NSArray* inputProxies)
             NSURL* scriptURL = [dictionary objectForKey: (__bridge NSURL*)kCFProxyAutoConfigurationURLKey];
             if (scriptURL == nullptr)
                 continue;
-            expandPACProxy(testUrl, scriptURL, retProxies);
+            expandPACProxy(pConfigurationAPI, testUrl, scriptURL, retProxies);
         }
         else
         {
@@ -120,12 +121,17 @@ NSArray* expandPACProxies(NSURL* testUrl, NSArray* inputProxies)
 
 namespace proxy
 {
+ProxyDiscoveryEngine::ProxyDiscoveryEngine(
+            std::shared_ptr<ISystemConfigurationAPI> pConfigurationAPI):
+    m_pConfigurationAPI(std::move(pConfigurationAPI))
+{
+}
+
 std::list<ProxyRecord> ProxyDiscoveryEngine::getProxiesInternal(const std::string& testUrlStr, const std::string &pacUrlStr)
 {
     std::list<ProxyRecord> proxyList;
     
-    NSDictionary* proxySettings =
-    (__bridge_transfer NSDictionary*)SCDynamicStoreCopyProxies(nullptr);
+    NSDictionary* proxySettings = m_pConfigurationAPI->dynamicStoreCopyProxies();
     
     if (proxySettings == nullptr)
     {
@@ -142,12 +148,12 @@ std::list<ProxyRecord> ProxyDiscoveryEngine::getProxiesInternal(const std::strin
         PROXY_LOG_DEBUG("Pac url is provided for the proxy discovery: %s", pacUrlStr.c_str());
         NSString* nsPacUrlStr = [NSString stringWithUTF8String:pacUrlStr.c_str()];
         NSURL* pacUrl = [NSURL URLWithString: nsPacUrlStr];
-        expandPACProxy(testUrl, pacUrl, proxies);
+        expandPACProxy(m_pConfigurationAPI.get(), testUrl, pacUrl, proxies);
     }
     
-    NSArray* systemProxies = (__bridge_transfer NSArray*)CFNetworkCopyProxiesForURL((__bridge CFURLRef)testUrl, (__bridge CFDictionaryRef)proxySettings);
+    NSArray* systemProxies = m_pConfigurationAPI->copyProxiesForURL(testUrl, proxySettings);
     
-    NSArray* expandedProxies = expandPACProxies(testUrl, systemProxies);
+    NSArray* expandedProxies = expandPACProxies(m_pConfigurationAPI.get(), testUrl, systemProxies);
     [proxies addObjectsFromArray:expandedProxies];
     
     for (NSDictionary* dictionary in proxies) {
@@ -254,11 +260,6 @@ ProxyDiscoveryEngine::~ProxyDiscoveryEngine()
     
     if (m_threadSync && m_threadSync->joinable())
         m_threadSync->join();
-}
-
-std::unique_ptr<IProxyDiscoveryEngine> createProxyEngine()
-{
-    return std::make_unique<ProxyDiscoveryEngine>();
 }
 
 } //proxy namespace
