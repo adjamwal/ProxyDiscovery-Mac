@@ -43,7 +43,7 @@ To build ProxyDiscovery-Mac, perform following commands:
 ~~~
 mkdir build
 cd build
-cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Debug ../
+cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Debug -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 ~~~
 Open XCode and build
 
@@ -51,7 +51,7 @@ Open XCode and build
 ~~~
 mkdir build
 cd build
-cmake -G "Xcode" -DCMAKE_BUILD_TYPE=RelWithDebInfo ../
+cmake -G "Xcode" -DCMAKE_BUILD_TYPE=RelWithDebInfo -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 ~~~
 Open XCode and build
 
@@ -59,7 +59,7 @@ Open XCode and build
 ~~~
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug ../
+cmake -DCMAKE_BUILD_TYPE=Debug -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 cmake --build .
 ~~~
 
@@ -67,6 +67,9 @@ cmake --build .
 ~~~
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 cmake --build .
 ~~~
+
+Repository of the google test library which cisco is using is:
+git@code.engine.sourcefire.com:cloud/fireamp-win-google-test.git
