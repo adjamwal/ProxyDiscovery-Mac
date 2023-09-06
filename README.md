@@ -71,5 +71,13 @@ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -Dgtest_INCLUDE_DIRS=<full path to the p
 cmake --build .
 ~~~
 
+### If you want to use debug versions of google test libraries (gtestd, gmockd) for the release build you could do the following:
+~~~
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_DEBUG_TEST_LIBRARIES=TRUE -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
+cmake --build .
+~~~
+
 Repository of the google test library which cisco is using is:
 git@code.engine.sourcefire.com:cloud/fireamp-win-google-test.git
