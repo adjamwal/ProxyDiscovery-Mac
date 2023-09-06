@@ -36,10 +36,18 @@ add_executable(
 
 set_property(TARGET ProxyDiscoveryTest APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 
+target_link_directories(
+  ProxyDiscoveryTest BEFORE
+  PRIVATE
+      ${gtest_LIBRARY}
+)
+
 target_link_libraries(
   ProxyDiscoveryTest
   ${GTEST_MAIN_FREE_LIBS}
   "-framework CFNetwork"
+  "-framework Foundation"
+  "-framework SystemConfiguration"
 )
 
 target_include_directories(
@@ -49,12 +57,6 @@ target_include_directories(
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${CMAKE_CURRENT_SOURCE_DIR}/../include
       ${CMAKE_CURRENT_SOURCE_DIR}/../src
-)
-
-target_link_directories(
-  ProxyDiscoveryTest BEFORE
-  PRIVATE
-      ${gtest_LIBRARY}
 )
 
 include(GoogleTest)
