@@ -27,6 +27,6 @@ public:
     virtual std::list<ProxyRecord> getProxies(const std::string& testUrl, const std::string &pacUrl) = 0;
 };
 
-std::unique_ptr<IProxyDiscoveryEngine>  PROXY_DISCOVERY_MODULE_API createProxyEngine();
+std::shared_ptr<IProxyDiscoveryEngine>  PROXY_DISCOVERY_MODULE_API createProxyEngine();
 
 } //proxy

@@ -9,48 +9,43 @@
 #include <memory>
 #include <string>
 
-
-using namespace std::string_literals;
-
 namespace
 {
-    const std::string kEmptyPACUrl = ""s; 
+    const std::string kEmptyPACUrl = "";
 }
 
 class TestProxyDiscoveryPAC : public ::testing::Test
 {
 public:
     TestProxyDiscoveryPAC(): pSystemAPI_(std::make_shared<proxy::FakeSystemConfigurationAPI>()),
-        pProxyDiscoveryEngine_(std::make_unique<proxy::ProxyDiscoveryEngine>(pSystemAPI_))
+        pProxyDiscoveryEngine_(std::make_shared<proxy::ProxyDiscoveryEngine>(pSystemAPI_))
     {
-        NSString* nStrPACType = (__bridge NSString*)kCFProxyTypeAutoConfigurationURL;
-        std::string strPACType = util::convertNSStringToStdString(nStrPACType);
-        systemProxies_.push_back({"proxy1.example.com"s, 8081, "HTTP"s});
-        systemProxies_.push_back({strPACScriptUrl_, 8081, strPACType});
-        systemProxies_.push_back({"proxy3.example.com"s, 1080, "SOCKS"s});
+        systemProxies_.push_back({"proxy1.example.com", 8081, proxy::ProxyTypes::HTTP});
+        systemProxies_.push_back({strPACScriptUrl_, 8081, proxy::ProxyTypes::autoConfigurationURL});
+        systemProxies_.push_back({"proxy3.example.com", 1080, proxy::ProxyTypes::SOCKS});
         pSystemAPI_->addProxies(strUrl_, systemProxies_);
         pSystemAPI_->addPACProxies(strPACScriptUrl_, pacProxies_);
     }
     
 protected:
-    std::string strUrl_ = "https://www.wikipedia.org"s;
-    std::string strPACScriptUrl_ = "https://pac.autoconf.com"s;
+    std::string strUrl_ = "https://www.wikipedia.org";
+    std::string strPACScriptUrl_ = "https://pac.autoconf.com";
     std::list<proxy::ProxyRecord> systemProxies_;
     std::list<proxy::ProxyRecord> pacProxies_ =
-        { { "proxy1.example1.com"s, 8081, "HTTP"s },
-        { "proxy2.example1.com"s, 3129, "HTTPS"s },
-        { "proxy3.example1.com"s, 1081, "SOCKS"s } };
+        { { "proxy1.example1.com", 8081, proxy::ProxyTypes::HTTP },
+        { "proxy2.example1.com", 3129, proxy::ProxyTypes::HTTPS },
+        { "proxy3.example1.com", 1081, proxy::ProxyTypes::SOCKS } };
     std::list<proxy::ProxyRecord> expectedProxies_ =
-        { { "proxy1.example.com"s, 8081, "HTTP"s },
-        { "proxy1.example1.com"s, 8081, "HTTP"s },
-        { "proxy2.example1.com"s, 3129, "HTTPS"s },
-        { "proxy3.example1.com"s, 1081, "SOCKS"s },
-        {"proxy3.example.com"s, 1080, "SOCKS"s } };
+        { { "proxy1.example.com", 8081, proxy::ProxyTypes::HTTP },
+        { "proxy1.example1.com", 8081, proxy::ProxyTypes::HTTP },
+        { "proxy2.example1.com", 3129, proxy::ProxyTypes::HTTPS },
+        { "proxy3.example1.com", 1081, proxy::ProxyTypes::SOCKS },
+        {"proxy3.example.com", 1080, proxy::ProxyTypes::SOCKS } };
     std::list<proxy::ProxyRecord> expectedProxiesOnPacError_ =
-        { { "proxy1.example.com"s, 8081, "HTTP"s },
-        {"proxy3.example.com"s, 1080, "SOCKS"s } };
+        { { "proxy1.example.com", 8081, proxy::ProxyTypes::HTTP },
+        {"proxy3.example.com", 1080, proxy::ProxyTypes::SOCKS } };
     std::shared_ptr<proxy::FakeSystemConfigurationAPI> pSystemAPI_;
-    std::unique_ptr<proxy::ProxyDiscoveryEngine> pProxyDiscoveryEngine_;
+    std::shared_ptr<proxy::ProxyDiscoveryEngine> pProxyDiscoveryEngine_;
 };
 
 TEST_F(TestProxyDiscoveryPAC, CheckReturningPACProxies)
@@ -70,12 +65,12 @@ class TestProxyDiscovery : public ::testing::TestWithParam<std::pair<std::string
 public:
 	TestProxyDiscovery():
         pSystemAPI_(std::make_shared<proxy::FakeSystemConfigurationAPI>()),
-        pProxyDiscoveryEngine_(std::make_unique<proxy::ProxyDiscoveryEngine>(pSystemAPI_)) {
+        pProxyDiscoveryEngine_(std::make_shared<proxy::ProxyDiscoveryEngine>(pSystemAPI_)) {
     }
 
 protected:
 	std::shared_ptr<proxy::FakeSystemConfigurationAPI> pSystemAPI_;
-    std::unique_ptr<proxy::ProxyDiscoveryEngine> pProxyDiscoveryEngine_;
+    std::shared_ptr<proxy::ProxyDiscoveryEngine> pProxyDiscoveryEngine_;
 
 };
 
@@ -89,20 +84,20 @@ TEST_P(TestProxyDiscovery, CheckReturningCorrectProxyList)
 
 INSTANTIATE_TEST_SUITE_P(Default, TestProxyDiscovery, ::testing::Values(
     std::make_pair<std::string, std::list<proxy::ProxyRecord>>(
-        "https://www.youtube.com"s,
-        {{ "proxy1.example.com"s, 8080, "HTTP"s },
-        { "proxy2.example.com"s, 3128, "HTTPS"s },
-        { "proxy3.example.com"s, 1080, "SOCKS"s }}
+        "https://www.youtube.com",
+        {{ "proxy1.example.com", 8080, proxy::ProxyTypes::HTTP },
+        { "proxy2.example.com", 3128, proxy::ProxyTypes::HTTPS },
+        { "proxy3.example.com", 1080, proxy::ProxyTypes::SOCKS }}
     ),
     std::make_pair<std::string, std::list<proxy::ProxyRecord>>(
-        "https://www.cisco.com"s,
+        "https://www.cisco.com",
         {}
     ),
     std::make_pair<std::string, std::list<proxy::ProxyRecord>>(
-        "https://www.wikipedia.org"s,
-        {{ "proxy1.example1.com"s, 8081, "HTTP"s },
-        { "proxy2.example1.com"s, 3129, "HTTPS"s },
-        { "proxy3.example1.com"s, 1081, "SOCKS"s }}
+        "https://www.wikipedia.org",
+        {{ "proxy1.example1.com", 8081, proxy::ProxyTypes::HTTP },
+        { "proxy2.example1.com", 3129, proxy::ProxyTypes::HTTPS },
+        { "proxy3.example1.com", 1081, proxy::ProxyTypes::SOCKS }}
     )
 ));
 

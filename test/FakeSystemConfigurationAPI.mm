@@ -23,6 +23,29 @@ NSError *createNetworkingError(proxy::NetworkingErrorType type, NSString* descri
                            userInfo: userInfo];
 }
 
+NSString* convertProxyTypeToProxyName(proxy::ProxyTypes proxyType)
+{
+    switch (proxyType)
+    {
+        case (proxy::ProxyTypes::autoConfigurationURL):
+            return (__bridge NSString*)kCFProxyTypeAutoConfigurationURL;
+        case (proxy::ProxyTypes::autoConfigurationJavaScript):
+            return (__bridge NSString*)kCFProxyTypeAutoConfigurationJavaScript;
+        case (proxy::ProxyTypes::FTP):
+            return (__bridge NSString*)kCFProxyTypeFTP;
+        case (proxy::ProxyTypes::HTTP):
+            return (__bridge NSString*)kCFProxyTypeHTTP;
+        case (proxy::ProxyTypes::HTTPS):
+            return (__bridge NSString*)kCFProxyTypeHTTPS;
+        case (proxy::ProxyTypes::SOCKS):
+            return (__bridge NSString*)kCFProxyTypeSOCKS;
+        case (proxy::ProxyTypes::None):
+        default:
+            return (__bridge NSString*)kCFProxyTypeNone;
+    }
+    return (__bridge NSString*)kCFProxyTypeNone;
+}
+
 }
 
 namespace proxy
@@ -63,15 +86,14 @@ NSDictionary* FakeSystemConfigurationAPI::dynamicStoreCopyProxies()
 
 NSArray* FakeSystemConfigurationAPI::convertProxies(const std::list<ProxyRecord>& proxyList)
 {
-    NSString* nStrPACType = (__bridge NSString*)kCFProxyTypeAutoConfigurationURL;
-    std::string strPACType = util::convertNSStringToStdString(nStrPACType);
+    NSString* nsStrPACType = (__bridge NSString*)kCFProxyTypeAutoConfigurationURL;
     NSMutableArray* arrayOfDictionaries = [NSMutableArray array];
     for (auto&& proxyRec: proxyList)
     {
         NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-        if (proxyRec.proxyType == strPACType)
+        NSString* strType = convertProxyTypeToProxyName(proxyRec.proxyType);
+        if ([nsStrPACType isEqualToString: strType])
         {
-            NSString* strType = [NSString stringWithUTF8String: proxyRec.proxyType.c_str()];
             [dict setObject:strType forKey: (__bridge NSString*)kCFProxyTypeKey];
             
             NSString* strUrl = [NSString stringWithUTF8String: proxyRec.url.c_str()];
@@ -80,7 +102,6 @@ NSArray* FakeSystemConfigurationAPI::convertProxies(const std::list<ProxyRecord>
         }
         else
         {
-            NSString* strType = [NSString stringWithUTF8String: proxyRec.proxyType.c_str()];
             [dict setObject:strType forKey: (__bridge NSString*)kCFProxyTypeKey];
             
             NSNumber* portNum = [NSNumber numberWithUnsignedInt: proxyRec.port];
@@ -120,7 +141,6 @@ CFRunLoopSourceRef FakeSystemConfigurationAPI::executeProxyAutoConfigurationURL(
         CFProxyAutoConfigurationResultCallback cb,
         CFStreamClientContext* clientContext)
 {
-	using namespace std::chrono_literals;
     NSString* nsStrScriptUrl = [scriptURL absoluteString];
     std::string strScriptUrl = util::convertNSStringToStdString(nsStrScriptUrl);
     NSArray* nsProxyArray = [NSMutableArray array];
@@ -161,7 +181,7 @@ CFRunLoopSourceRef FakeSystemConfigurationAPI::executeProxyAutoConfigurationURL(
 	CFRunLoopSourceRef runLoopSource = CFRunLoopSourceCreate(nullptr, 0, &runLoopSourceContext);
 
 	auto threadFn = [&runLoopSource]() {
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         CFRunLoopSourceSignal(runLoopSource);
     };

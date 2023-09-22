@@ -5,9 +5,10 @@ project(ProxyDiscovery)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
-set(CXX_EXTENSIONS ON)
+#pass below values via command line argument to cmake command, like: -DCMAKE_CXX_STANDARD=17
+#set(CMAKE_C_STANDARD 99)
+#set(CMAKE_CXX_STANDARD 17)
+#set(CXX_EXTENSIONS ON)
 
 if(APPLE)
     message("** Building on macOS, generator ${CMAKE_GENERATOR} **")
@@ -51,6 +52,7 @@ list(APPEND PROXY_DISCOVERY_SOURCES
     src/ScopedGuard.hpp
     src/ProxyLogger.cpp
     src/ProxyLoggerDef.hpp
+    src/ProxyRecord.cpp
     src/StringUtil.hpp
     src/StringUtil.mm
     src/ISystemConfigurationAPI.h
@@ -60,6 +62,13 @@ list(APPEND PROXY_DISCOVERY_SOURCES
 
 add_library(ProxyDiscovery STATIC
     ${PROXY_DISCOVERY_SOURCES}
+)
+
+set_target_properties(ProxyDiscovery 
+    PROPERTIES 
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        C_STANDARD 99
 )
 
 target_compile_definitions(ProxyDiscovery

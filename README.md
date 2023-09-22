@@ -37,13 +37,14 @@ To be able to build ProxyDiscovery-Mac, the following software packages are requ
 
 # Build
 
+The CMAKE_CXX_STANDARD value in below commands could be 11, 14, 17.
 To build ProxyDiscovery-Mac, perform following commands:
 
 ## XCode debug build:
 ~~~
 mkdir build
 cd build
-cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Debug -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
+cmake -G "Xcode" -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=17 -DCXX_EXTENSIONS=ON -DCMAKE_BUILD_TYPE=Debug -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 ~~~
 Open XCode and build
 
@@ -51,7 +52,7 @@ Open XCode and build
 ~~~
 mkdir build
 cd build
-cmake -G "Xcode" -DCMAKE_BUILD_TYPE=RelWithDebInfo -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
+cmake -G "Xcode" -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=17 -DCXX_EXTENSIONS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 ~~~
 Open XCode and build
 
@@ -59,7 +60,7 @@ Open XCode and build
 ~~~
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
+cmake -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=17 -DCXX_EXTENSIONS=ON -DCMAKE_BUILD_TYPE=Debug -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 cmake --build .
 ~~~
 
@@ -67,7 +68,7 @@ cmake --build .
 ~~~
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
+cmake -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=17 -DCXX_EXTENSIONS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 cmake --build .
 ~~~
 
@@ -75,7 +76,7 @@ cmake --build .
 ~~~
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_DEBUG_TEST_LIBRARIES=TRUE -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
+cmake -DCMAKE_C_STANDARD=99 -DCMAKE_CXX_STANDARD=17 -DCXX_EXTENSIONS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_DEBUG_TEST_LIBRARIES=TRUE -Dgtest_INCLUDE_DIRS=<full path to the place where google test library includes ae located> -Dgtest_LIBRARY=<full path to the place where google test library binaries ae located> ../
 cmake --build .
 ~~~
 

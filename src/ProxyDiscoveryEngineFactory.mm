@@ -9,9 +9,9 @@
 namespace proxy
 {
 
-std::unique_ptr<IProxyDiscoveryEngine> createProxyEngine()
+std::shared_ptr<IProxyDiscoveryEngine> createProxyEngine()
 {
-    return std::make_unique<ProxyDiscoveryEngine>(
+    return std::make_shared<ProxyDiscoveryEngine>(
         std::make_shared<SystemConfigurationAPI>());
 }
 

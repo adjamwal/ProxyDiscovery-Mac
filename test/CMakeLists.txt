@@ -19,6 +19,7 @@ add_executable(
   ../include/IProxyLogger.h
   ../include/ProxyDef.h
   ../include/ProxyRecord.h
+  ../src/ProxyRecord.cpp
   ../src/ProxyDiscoveryEngine.h
   ../src/ProxyDiscoveryEngine.mm
   ../src/ScopedGuard.hpp

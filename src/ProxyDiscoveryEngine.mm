@@ -50,17 +50,18 @@ void expandPACProxy(proxy::ISystemConfigurationAPI* pConfigurationAPI, NSURL* te
     CFTypeRef result = nullptr;
     CFStreamClientContext context = {0, &result, nullptr, nullptr, nullptr};
     CFRunLoopSourceRef rls = pConfigurationAPI->executeProxyAutoConfigurationURL(testUrl, scriptURL, resultCallback, &context);
-    
-    auto guard = util::scoped_guard([&rls]() {
-        CFQRelease(rls);
-    });
-    
+     
     if (rls == nullptr)
     {
         PROXY_LOG_ERROR("Error occured during CFNetworkExecuteProxyAutoConfigurationURL call: returned CFRunLoopSourceRef is zero.");
         CFQRelease(result);
         return;
     }
+    
+    auto fnRelease = [&rls] () {
+        CFQRelease(rls);
+    };
+    util::scoped_guard<decltype(fnRelease)> guard{fnRelease};
     
     NSString* nsPrivateRunLoopMode = [NSString stringWithUTF8String:kPrivateRunLoopMode.c_str()];
     CFRunLoopAddSource(CFRunLoopGetCurrent(), rls, (__bridge CFStringRef)nsPrivateRunLoopMode);
@@ -117,6 +118,30 @@ NSArray* expandPACProxies(proxy::ISystemConfigurationAPI* pConfigurationAPI, NSU
     }
     return retProxies;
 }
+
+proxy::ProxyTypes convertProxyNameToProxyType(NSString* strProxy)
+{
+    proxy::ProxyTypes proxyType = proxy::ProxyTypes::None;
+    if ([strProxy isEqualToString: (__bridge NSString*)kCFProxyTypeNone]) {
+        proxyType = proxy::ProxyTypes::None;
+    } else if ([strProxy isEqualToString:
+                (__bridge NSString*)kCFProxyTypeAutoConfigurationURL]) {
+        proxyType = proxy::ProxyTypes::autoConfigurationURL;
+    } else if ([strProxy isEqualToString:
+                (__bridge NSString*)kCFProxyTypeAutoConfigurationJavaScript]) {
+        proxyType = proxy::ProxyTypes::autoConfigurationJavaScript;
+    } else if ([strProxy isEqualToString:(__bridge NSString*)kCFProxyTypeFTP]) {
+        proxyType = proxy::ProxyTypes::FTP;
+    } else if ([strProxy isEqualToString:(__bridge NSString*)kCFProxyTypeHTTP]) {
+        proxyType = proxy::ProxyTypes::HTTP;
+    } else if ([strProxy isEqualToString:(__bridge NSString*)kCFProxyTypeHTTPS]) {
+        proxyType = proxy::ProxyTypes::HTTPS;
+    } else if ([strProxy isEqualToString:(__bridge NSString*)kCFProxyTypeSOCKS]) {
+        proxyType = proxy::ProxyTypes::SOCKS;
+    }
+    return proxyType;
+}
+
 } //unnamed namespace
 
 namespace proxy
@@ -160,7 +185,7 @@ std::list<ProxyRecord> ProxyDiscoveryEngine::getProxiesInternal(const std::strin
         //TODO: We might need to extend ProxyRecord type to include
         //credentials fields: kCFProxyUsernameKey, kCFProxyPasswordKey.
         NSString* nsStrProxyType = [dictionary objectForKey:(__bridge NSString*)kCFProxyTypeKey];
-        std::string proxyType = util::convertNSStringToStdString(nsStrProxyType);
+        auto proxyType = convertProxyNameToProxyType(nsStrProxyType);
         
         NSString* nsStrHost = [dictionary objectForKey:(__bridge NSString*)kCFProxyHostNameKey];
         
