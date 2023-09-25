@@ -18,6 +18,15 @@ enum class PROXY_DISCOVERY_MODULE_API ProxyTypes
     None
 };
 
+struct ProxyTypesHasher
+{
+    template <typename T>
+    std::size_t operator()(T t) const
+    {
+        return static_cast<std::size_t>(t);
+    }
+};
+
 struct PROXY_DISCOVERY_MODULE_API ProxyRecord
 {
     ProxyRecord(std::string strUrl, uint32_t p, ProxyTypes prType);
@@ -38,6 +47,6 @@ struct PROXY_DISCOVERY_MODULE_API ProxyRecord
     std::string getProxyTypeName() const;
     
 private:
-    static std::unordered_map<ProxyTypes, std::string> s_proxyTypeToName;
+    static std::unordered_map<ProxyTypes, std::string, ProxyTypesHasher> s_proxyTypeToName;
 };
 } //proxy namespace

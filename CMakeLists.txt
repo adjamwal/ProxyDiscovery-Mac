@@ -64,12 +64,7 @@ add_library(ProxyDiscovery STATIC
     ${PROXY_DISCOVERY_SOURCES}
 )
 
-set_target_properties(ProxyDiscovery 
-    PROPERTIES 
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        C_STANDARD 99
-)
+target_compile_features(ProxyDiscovery PRIVATE cxx_std_11)
 
 target_compile_definitions(ProxyDiscovery
     PRIVATE

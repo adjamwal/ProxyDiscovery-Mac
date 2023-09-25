@@ -37,6 +37,8 @@ add_executable(
 
 set_property(TARGET ProxyDiscoveryTest APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 
+target_compile_features(ProxyDiscoveryTest PRIVATE cxx_std_11)
+
 target_link_directories(
   ProxyDiscoveryTest BEFORE
   PRIVATE

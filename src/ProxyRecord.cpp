@@ -14,7 +14,7 @@ ProxyRecord::ProxyRecord(std::string strUrl, uint32_t p, ProxyTypes prType):
 {
 }
 
-std::unordered_map<ProxyTypes, std::string> ProxyRecord::s_proxyTypeToName {
+std::unordered_map<ProxyTypes, std::string, ProxyTypesHasher> ProxyRecord::s_proxyTypeToName {
     {ProxyTypes::autoConfigurationURL, "autoConfigurationURL"},
     {ProxyTypes::autoConfigurationJavaScript, "autoConfigurationJavaScript"},
     {ProxyTypes::FTP, "ftp"},
