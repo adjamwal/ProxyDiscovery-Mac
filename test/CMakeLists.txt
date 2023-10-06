@@ -6,7 +6,7 @@ set(GTEST_MAIN_FREE_LIBS
     gmockd
 )
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT USE_DEBUG_TEST_LIBRARIES)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(GTEST_MAIN_FREE_LIBS
         gtest
         gmock
