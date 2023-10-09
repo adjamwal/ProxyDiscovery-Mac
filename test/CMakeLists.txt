@@ -2,8 +2,8 @@
 # Copyright 2023, Cisco Systems, Inc.
 
 set(GTEST_MAIN_FREE_LIBS
-    gtestd
-    gmockd
+    gtest
+    gmock
 )
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
