@@ -219,9 +219,9 @@ std::list<ProxyRecord> ProxyDiscoveryEngine::getProxiesInternal(const std::strin
     return proxyList;
 }
 
-void ProxyDiscoveryEngine::addObserver(IProxyObserver* pObserver)
+void ProxyDiscoveryEngine::addObserver(IProxyObserver& pObserver)
 {
-    m_observers.push_back(pObserver);
+    m_observers.push_back(&pObserver);
 }
 
 void ProxyDiscoveryEngine::requestProxiesAsync(const std::string& testUrl, const std::string &pacUrlStr, const std::string& guid)

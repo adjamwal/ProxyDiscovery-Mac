@@ -21,9 +21,9 @@ public:
 class PROXY_DISCOVERY_MODULE_API IProxyDiscoveryEngine {
 public:
     virtual ~IProxyDiscoveryEngine() = default;
-    virtual void addObserver(IProxyObserver* pObserver) = 0;
-    virtual void requestProxiesAsync(const std::string& testUrl, const std::string &pacUrl, const std::string& guid) = 0;
+    virtual void addObserver(IProxyObserver& pObserver) = 0;
     virtual void waitPrevOpCompleted() = 0;
+    virtual void requestProxiesAsync(const std::string& testUrl, const std::string &pacUrl, const std::string& guid) = 0;
     virtual std::list<ProxyRecord> getProxies(const std::string& testUrl, const std::string &pacUrl) = 0;
 };
 

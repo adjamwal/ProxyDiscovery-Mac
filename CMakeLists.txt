@@ -1,6 +1,6 @@
 # Copyright (c) 2023 Cisco Systems, Inc. All Rights Reserved.
 
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.25)
 project(ProxyDiscovery)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -41,61 +41,19 @@ if(NOT DEFINED gtest_LIBRARY OR NOT DEFINED gtest_INCLUDE_DIRS)
     message( FATAL_ERROR "Missing gtest" )
 endif()
 
-list(APPEND PROXY_DISCOVERY_SOURCES
-    include/IProxyDiscoveryEngine.h
-    include/IProxyLogger.h
-    include/ProxyDef.h
-    include/ProxyRecord.h
-    src/ProxyDiscoveryEngine.h
-    src/ProxyDiscoveryEngine.mm
-    src/ProxyDiscoveryEngineFactory.mm
-    src/ScopedGuard.hpp
-    src/ProxyLogger.cpp
-    src/ProxyLoggerDef.hpp
-    src/ProxyRecord.cpp
-    src/StringUtil.hpp
-    src/StringUtil.mm
-    src/ISystemConfigurationAPI.h
-    src/SystemConfigurationAPI.h
-    src/SystemConfigurationAPI.mm
-)
+if(LINUX) 
+    message( "Using CURL_LIBRARY_DIR=${CURL_LIBRARY_DIR} CURL_INCLUDE_DIRS=${CURL_INCLUDE_DIR}" )
+    if(NOT DEFINED CURL_LIBRARY_DIR OR NOT DEFINED CURL_INCLUDE_DIR)
+        message( FATAL_ERROR "Missing curl paths" )
+    endif()
+    if(NOT EXISTS "${CURL_LIBRARY_DIR}/libcurl.a") 
+        message( FATAL_ERROR "Curl library does not exist at path ${CURL_LIBRARY_DIR}" )
+    endif()
+    add_library(curl STATIC IMPORTED)
+    set_target_properties(curl PROPERTIES IMPORTED_LOCATION "${CURL_LIBRARY_DIR}/libcurl.a")
+endif()
 
-add_library(ProxyDiscovery STATIC
-    ${PROXY_DISCOVERY_SOURCES}
-)
-
-target_compile_features(ProxyDiscovery PRIVATE cxx_std_11)
-
-target_compile_definitions(ProxyDiscovery
-    PRIVATE
-        PROXY_DISCOVERY_MODULE_API_EXPORTS
-)
-
-set_property(TARGET ProxyDiscovery APPEND_STRING PROPERTY 
-              COMPILE_FLAGS "-fobjc-arc")
-
-target_include_directories(ProxyDiscovery
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${cm-client_SOURCE_DIR}
-)
-
-target_link_libraries(ProxyDiscovery
-    PRIVATE
-        "-framework Foundation"
-        "-framework SystemConfiguration"
-)
-
-# install rules
-install(TARGETS ProxyDiscovery DESTINATION lib)
-install(FILES 
-    "${CMAKE_SOURCE_DIR}/include/IProxyDiscoveryEngine.h"
-    "${CMAKE_SOURCE_DIR}/include/IProxyLogger.h"
-    "${CMAKE_SOURCE_DIR}/include/ProxyDef.h"
-    "${CMAKE_SOURCE_DIR}/include/ProxyRecord.h"
-   
-    DESTINATION include/ProxyDiscovery)
+add_subdirectory(src)
 
 ##
 ## test executable

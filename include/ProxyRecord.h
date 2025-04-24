@@ -3,6 +3,7 @@
 #include "ProxyDef.h"
 #include <string>
 #include <unordered_map>
+#include <cstdint>
 
 namespace proxy
 {
